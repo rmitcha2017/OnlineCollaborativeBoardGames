@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player Profile</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBp5_TSq1jQrQObN-Y_M0mg0aEzRz4FGyA",
+            authDomain: "ce301-4f9e5.firebaseapp.com",
+            databaseURL: "https://ce301-4f9e5.firebaseio.com",
+            projectId: "ce301-4f9e5",
+            storageBucket: "ce301-4f9e5.appspot.com",
+            messagingSenderId: "96077995008"
+        };
+        firebase.initializeApp(config);
+        var auth = firebase.auth();
+        var db = firebase.database();
+    </script>
+    <style>
+        #joinGame {
+            padding: 10px;
+            padding-left: 25px;
+            padding-right: 25px;
+            font-size: 14px;
+            color: #454545;
+            background-color: #ECEFF1;
+            border: 0.5px solid black;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body onload="displayNav()">
+<script>
+    var param = location.href.substring(location.href.indexOf("=")+1, location.href.length);
+
+    function displayNav() {
+        auth.onAuthStateChanged(function (user) {
+            if (user) {
+                $.get("headerloggedin.html", function (data) {
+                    $("#includedContent").replaceWith(data);
+                });
+            } else {
+                $.get("header.html", function (data) {
+                    $("#includedContent").replaceWith(data);
+                });
+            }
+        });
+        displayProfile();
+    }
+
+    function displayProfile() {
+        if ((location.href).includes("?id=")) {
+            //Display other profile
+            document.getElementById("profileName").innerText = "Welcome to the player profile of " + param;
+            var scores = [];
+            var scoreRef = db.ref('highscores').orderByChild("user").equalTo(param);
+            scoreRef.once('value', function (snapshot) {
+                snapshot.forEach(function(childNodes) {
+                    scores.push(childNodes.val().score);
+                });
+                if (scores.length != 0) {
+                    scores = scores.sort((a, b) => b - a);
+                    document.getElementById("highestScore").innerText = "Highest score achieved: " + scores[0];
+                } else {
+                    document.getElementById("highestScore").innerText = "Highest score achieved: N/A";
+                }
+            });
+            var sessRef = db.ref('sessions').orderByChild("p1email").equalTo(param);
+            sessRef.once('value', function (snapshot) {
+                snapshot.forEach(function(childNodes) {
+                    if (parseInt(childNodes.val().playercount) == 1) {
+                        document.getElementById("joinGame").style.display = "block";
+                    }
+                });
+            });
+        } else {
+            //Display own profile
+            auth.onAuthStateChanged(function (user) {
+                if (user) {
+                    document.getElementById("profileName").innerText = "Welcome to the player profile of " + user.email;
+                    var scores = [];
+                    var scoreRef = db.ref('highscores').orderByChild("user").equalTo(user.email);
+                    scoreRef.once('value', function (snapshot) {
+                        snapshot.forEach(function(childNodes) {
+                            scores.push(childNodes.val().score);
+                        });
+                        if (scores.length != 0) {
+                            scores = scores.sort((a, b) => b - a);
+                            document.getElementById("highestScore").innerText = "Highest score achieved: " + scores[0];
+                        } else {
+                            document.getElementById("highestScore").innerText = "Highest score achieved: N/A";
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    function joinSession() {
+        window.location.href='game.html?id=join?email=' + param;
+    }
+</script>
+<div id="includedContent">
+
+</div>
+<br><br><br>
+<div id="contentHolder" align="center">
+    <h1 id="profileName" align="center"></h1>
+    <br><br>
+    <h1 id="highestScore" align="center"></h1>
+    <br><br>
+    <button id="joinGame" onclick="joinSession()" style="display: none">Join Game Session</button>
+</div>
+</body>
+</html>

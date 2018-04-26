@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {margin:0;}
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0b235b;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 3;
+        }
+
+        li {
+            float: left;
+        }
+
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 25px 32px;
+            text-decoration: none;
+        }
+
+        li a:hover:not(.active) {
+            background-color: #d0d3d4;
+        }
+
+    </style>
+
+</head>
+<body>
+<ul>
+    <li><a class="home" href="index.html">Home</a></li>
+    <li id="reg" style="float: right"><a href="register.html">Register</a></li>
+    <li id ="log" style="float: right"><a href="login.html">Login</a></li>
+    <li id ="logout" style="float: right; display: none"><a href="test.html">Logout</a></li>
+</ul>
+</body>
+</html>

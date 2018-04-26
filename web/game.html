@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Online Collaborative Board Game - Game</title>
+    <style>
+        canvas {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            width: 800px;
+            border:5px solid #000000;
+        }
+        * {
+            font-family: Helvetica, Arial, sans-serif;
+            text-align: center;
+        }
+        button {
+            background-color: rgb(0, 0, 0);
+            border-radius: 6px;
+            border: none;
+            color: rgb(255, 255, 255);
+            padding: 10px;
+            text-transform: uppercase;
+            width: 150px;
+            cursor: pointer;
+        }
+        #placeholder {
+            height: 50px;
+            width: 50px;
+            padding: 50px;
+            margin: 5px auto;
+            border: 1px solid gray;
+            border-radius: 10px;
+            font-size:40px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body bgcolor="#33ccff" onload="createorload()">
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+
+<script>
+    function createorload () {
+        if (!((location.href).includes("?email="))) {
+            var param = location.href.substring(location.href.indexOf("=") + 1, location.href.length);
+            firebase.auth().onAuthStateChanged(function (user) {
+                console.log("in here");
+                if (user) {
+                    console.log(user.email);
+                    if (param == "create") {
+                        create(user.email);
+                    } else if (param == "join") {
+                        document.getElementById("message").innerHTML = ' ';
+                        join(user.email);
+                    }
+                } else {
+                    if (param == "create") {
+                        create("None");
+                    } else if (param == "join") {
+                        document.getElementById("message").innerHTML = ' ';
+                        join("None");
+                    }
+                }
+            });
+        } else {
+            var param2 = location.href.substring(location.href.lastIndexOf("=") + 1, location.href.length);
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    document.getElementById("message").innerHTML = ' ';
+                    joinSpecific(user.email, param2);
+                } else {
+                    document.getElementById("message").innerHTML = ' ';
+                    joinSpecific("None", param2);
+                }
+            });
+        }
+    }
+</script>
+
+
+<p id="message" style="font-size:125%; z-index:1; position: absolute; left:0; right:0; margin-left:auto; margin-right:auto; margin-top:10px;" align="center">Welcome to the game, you are the first player. Please wait for one more player to join.</p>
+<canvas id="myCanvas" width="750" height="500" style="z-index:-1; top:60px; position: absolute; left:0; right:0; margin-left:auto; margin-right:auto;">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script async type='text/javascript' src='main.js'></script>
+<div id="diceholder" style="z-index:2; position:absolute; top:325px; right:272px;">
+<p id="placeholder" style="position:relative;"></p>
+</p>
+<button onclick="roll(printNumber())" id="button" style="position:relative;">Roll</button>
+<script src="dice.js"></script>
+</div>
+</body>
+</html>

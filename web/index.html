@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Online Collaborative Board Game Index</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBp5_TSq1jQrQObN-Y_M0mg0aEzRz4FGyA",
+            authDomain: "ce301-4f9e5.firebaseapp.com",
+            databaseURL: "https://ce301-4f9e5.firebaseio.com",
+            projectId: "ce301-4f9e5",
+            storageBucket: "ce301-4f9e5.appspot.com",
+            messagingSenderId: "96077995008"
+        };
+        firebase.initializeApp(config);
+        var db = firebase.database();
+        var auth = firebase.auth();
+        var messages = db.ref('messages');
+    </script>
+    <style>
+        body {
+            margin: 0 auto;
+            padding: 0;
+        }
+        #chatInterface {
+            padding-left: 0;
+            padding-right: 0;
+            margin-top: 90px;
+            margin-right: auto;
+            margin-left: 25px;
+            display: block;
+            border:1px solid #000000;
+            border-radius: 5px;
+            background-color: #0b235b;
+            float: left;
+            z-index: -1;
+        }
+
+        #highscoreInterface {
+            padding-left: 0;
+            padding-right: 0;
+            margin-top: 90px;
+            margin-right: 25px;
+            margin-left: auto;
+            display: block;
+            border:1px solid #000000;
+            border-radius: 5px;
+            background-color: #0b235b;
+            float: right;
+            z-index: -1;
+        }
+
+        #inputmessage {
+            padding: 10px;
+            padding-right: 75px;
+            border: 2px;
+            border-radius: 5px;
+        }
+
+        .message {
+            border: 2px solid #dedede;
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        button {
+            background-color: #263d75;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            padding: 30px;
+            width: 300px;
+            cursor: pointer;
+        }
+
+        button2 {
+            background-color: #263d75;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            padding: 30px;
+            width: 300px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body bgcolor="#ffffff" onload="checklogmessagesandhighscores()">
+<script>
+    function checklogmessagesandhighscores() {
+        console.log(screen.width);
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                $.get("headerloggedin.html", function(data) {
+                    $("#includedContent").replaceWith(data);
+                });
+                document.getElementById("button2").style.display = "block";
+            } else {
+                // No user is signed in.
+                $.get("header.html", function(data) {
+                    $("#includedContent").replaceWith(data);
+                });
+            }
+        });
+        messages.on('value', function(snap) {
+            var list = [];
+            var myNode = document.getElementById("messageholder");
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);
+            }
+            snap.forEach(function(childNodes){
+                list.push(childNodes.val());
+            });
+            console.log(list.length);
+            var count = 1;
+            for (var i = list.length - 5; i < list.length; i++) {
+                var p = document.createElement("p");
+                p.innerHTML = "[" + list[i].time + "] <b><a href='profile.html?id=" + list[i].user +  "'>" + list[i].user + "</a>: </b>" + list[i].message;
+                var div = document.createElement("div");
+                div.setAttribute("class", "message");
+                div.style.zIndex = "2";
+                div.style.position = "absolute";
+                if (count == 1) {
+                    div.style.top = "100px";
+                } else {
+                    div.style.top = ((100 + (85 * (count-1)) + "px"));
+                }
+                div.style.left = "38px";
+                div.style.maxWidth = "260px";
+                div.style.minWidth = "260px";
+                div.style.minHeight = "60px";
+                div.style.maxHeight = "60px";
+                div.style.wordWrap = "break-word";
+                div.setAttribute("align", "left");
+                div.appendChild(p);
+                document.getElementById('messageholder').appendChild(div);
+                count++;
+            }
+        });
+        db.ref("highscores").orderByChild("score").on('value', function(snap){
+            var list2 = [];
+            var myNode2 = document.getElementById("highscoreholder");
+            while (myNode2.firstChild) {
+                myNode2.removeChild(myNode2.firstChild);
+            }
+            snap.forEach(function(childNodes){
+                list2.push(childNodes.val());
+            });
+            console.log("list2: " + list2);
+            list2 = list2.slice(list2.length - 5, list2.length);
+            list2 = list2.reverse();
+            console.log(list2.length);
+            var count = 1;
+            for (var i = list2.length - 5; i < list2.length; i++) {
+                var p = document.createElement("p");
+                p.innerHTML = "<b>" + list2[i].user + ": </b>" + list2[i].score;
+                var div = document.createElement("div");
+                div.setAttribute("class", "message");
+                div.style.zIndex = "2";
+                div.style.position = "absolute";
+                if (count == 1) {
+                    div.style.top = "100px";
+                } else {
+                    div.style.top = ((100 + (85 * (count-1)) + "px"));
+                }
+                div.style.right = "40px";
+                div.style.maxWidth = "260px";
+                div.style.minWidth = "260px";
+                div.style.minHeight = "60px";
+                div.style.maxHeight = "60px";
+                div.style.wordWrap = "break-word";
+                div.setAttribute("align", "left");
+                div.appendChild(p);
+                document.getElementById('highscoreholder').appendChild(div);
+                count++;
+            }
+        });
+    }
+</script>
+<div id="includedContent">
+
+</div>
+
+<button onclick="window.location.href='game.html?id=join'" id="button" style="z-index:2; position:absolute; top:100px; left:50%; margin-left:-150px;">
+    Join Random Game Session
+</button>
+
+<button onclick="window.location.href='game.html?id=create'" id="button2" style="z-index:2; position:absolute; top:200px; left:50%; margin-left:-150px; display: none">
+    Create New Game Session
+</button>
+
+<canvas id="chatInterface" width="300" height="500">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+<script>
+    function pushMessage() {
+        auth.onAuthStateChanged(function (user) {
+            if (user) {
+                var time = new Date().toLocaleTimeString();
+                var userdetails = user.email;
+                var messageText = document.getElementById("inputmessage").value;
+                var data = {
+                    time: time,
+                    user: userdetails,
+                    message: messageText
+                };
+                console.log("--------");
+                messages.push(data);
+                document.getElementById("inputmessage").value = '';
+            } else {
+                // No user is signed in.
+            }
+        });
+        return false;
+    }
+</script>
+
+<div id="messageholder">
+
+</div>
+
+<div id="formHolder" align="center">
+<form class="form" onsubmit="return pushMessage()">
+    <div class="groupform">
+        <input type="text" style="z-index:2; position:absolute; top:540px; left:50px;" id ="inputmessage" placeholder="Enter Message" class="form-control"/>
+    </div>
+    <button id="send" class="btn" style="position: absolute; left: -9999px">Send</button>
+</form>
+</div>
+
+<canvas id="highscoreInterface" width="300" height="750">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+
+<div id="highscoreholder">
+
+</div>
+</body>
+</html>

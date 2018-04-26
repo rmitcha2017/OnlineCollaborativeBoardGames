@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Page</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBp5_TSq1jQrQObN-Y_M0mg0aEzRz4FGyA",
+            authDomain: "ce301-4f9e5.firebaseapp.com",
+            databaseURL: "https://ce301-4f9e5.firebaseio.com",
+            projectId: "ce301-4f9e5",
+            storageBucket: "ce301-4f9e5.appspot.com",
+            messagingSenderId: "96077995008"
+        };
+        firebase.initializeApp(config);
+        var auth = firebase.auth();
+    </script>
+    <script>
+        $(function(){
+            $("#includedContent").load("header.html");
+        });
+    </script>
+    <script>
+        $(function () {
+            $('form').on('submit', event => {
+                event.preventDefault();
+            const email = $('#emailad').val();
+            const password = $('#pword').val();
+            console.log(email, password);
+            var errorCode = null;
+            auth.createUserWithEmailAndPassword(email, password).then(function(user) {
+                $('#errors').text("Registration Successful. You can now log in with these details.");
+            }, function(error) {
+                $('#errors').text(error.message);
+            });
+        })
+        })
+    </script>
+    <style>
+        #emailad {
+            padding: 25px;
+            font-size: 14px;
+            background-color: #ECEFF1;
+            border-color: black;
+            border-style: solid;
+            border: 2px;
+            border-radius: 5px;
+            padding-right: 75px;
+            margin-bottom: 10px;
+        }
+        #pword {
+            padding: 25px;
+            font-size: 14px;
+            background-color: #ECEFF1;
+            border-color: black;
+            border-style: solid;
+            border: 2px;
+            border-radius: 5px;
+            padding-right: 75px;
+        }
+        #submitform {
+            padding: 10px;
+            font-size: 14px;
+            color: #454545;
+            background-color: #ECEFF1;
+            border: 0.5px solid black;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body bgcolor="#ffffff">
+<div id="includedContent">
+
+</div>
+
+<form class="form" style="padding-top: 100px; padding-bottom: 40px;">
+    <div class="groupform" align="center">
+        <input type="email" id ="emailad" placeholder="Email Address" class="form-control"/>
+    </div>
+
+    <div class="groupform" align="center">
+        <input type="password" id ="pword" placeholder="Password" class="form-control"/>
+    </div>
+
+    <p id="errors" align="center"></p>
+
+    <div align="center">
+    <button id="submitform" class="btn">Complete Registration</button>
+    </div>
+</form>
+</body>
+</html>
